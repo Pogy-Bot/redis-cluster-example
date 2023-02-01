@@ -1,18 +1,20 @@
-# Redis Cluster with RedisJSON made easy
+# Redis with RedisJSON clustering made easy
 
-Before starting, this uses Redis JSON, so when u pull this repo, cd to the repo then run
+Before starting, this uses Redis JSON, you can edit the `cluster.sh` file to remove the module loading.
+
+So when u pull this repo, cd to the repo then run
 
 ```bash
 git clone https://github.com/RedisJSON/RedisJSON
 ```
 
-cd to the RedisJSON folder and run
+`cd` to the `RedisJSON` folder and run
 
 ```bash
 cargo build --release
 ```
 
-Then cd back `cd ..`
+Then `cd` back `cd ..`
 
 - Create cluster nodes with `./cluster.sh` script.
 - Then we need to join the nodes together with this command by opening another terminal and running

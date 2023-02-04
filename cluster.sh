@@ -1,4 +1,4 @@
-  GNU nano 4.8                                                                                                  cluster_fixed.sh                                                                                                             #!/bin/bash
+#!/bin/bash
 
 set -e # Exit on errors
 

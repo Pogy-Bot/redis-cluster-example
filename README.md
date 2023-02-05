@@ -7,7 +7,7 @@ If you want to do it locally on development, here is the branch for it [https://
 
 ## Notes
 - If you wanna build the plugins, make sure you have the language rust installed
-- You should be used systemd to manage your services or it will not work
+- You should be using systemd to manage your services or it will not work
 
 ## Summary of Steps
 
@@ -18,7 +18,7 @@ _Step 1 and 2 are incase plugins cannot somehow work in the plugins folder in th
 4- Start services
 5- Run the redis command to link the clusters
 
-### 1- Download RedisJSON plugin
+### 1- Download RedisJSON plugin - optional
 
 If you decided to build it from source, here are the commands to do so:
 
@@ -35,7 +35,7 @@ then go to each redis.conf and change the path to
 loadmodule /path/to/RedisJSON/target/release/librejson.so
 ```
 
-### 2- Download Redis Search plugin
+### 2- Download Redis Search plugin - optional
 
 If you decided to build it from source, here are the commands to do so:
 
@@ -56,12 +56,12 @@ find . -name "redisearch.so"
 and use the path that is returned.
 
 ### 3- Initializing
-Install redis-server and disable the service
+Install `redis-server` and disable the service
 
 ```bash
-sudo apt-get update
-sudo apt-get install redis-server
-sudo systemctl disable redis-server.service
+sudo apt-get update # update the package list
+sudo apt-get install redis-server # install redis
+sudo systemctl disable redis-server.service # disable the service
 ```
 
 Create a redis user and a redis group for the Redis Server services and give them the correct permissions by running the following commands:
@@ -70,9 +70,9 @@ Create a redis user and a redis group for the Redis Server services and give the
 sudo chown redis:redis -R /etc/redis
 ```
 
-Go through each folder, and customize the redis.conf and service file to your needs.
+Go through each folder, and customize the `redis.conf` and service file to your needs.
 
-After you're done copy all the files to /etc/redis/
+After you're done copy all the files to `/etc/redis/`
 ```bash
 # if you're in the root of the repo
 sudo cp -r * /etc/redis/
@@ -162,7 +162,7 @@ CLUSTER NODES
 - If you get cluster formatting errors use
 
 ```bash
-tr -d '\r' < cluster.sh > cluster_fixed.sh
+tr -d '\r' < filename.sh > filename_fixed.sh
 ```
 
-and then run `./cluster_fixed.sh` instead.
+and then run `./filename_fixed.sh` instead.

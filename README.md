@@ -4,19 +4,19 @@ This is meant if you wanna do redis clustering on production, it will open up re
 
 If you want to do it locally on development, here is the branch for it [https://github.com/Pogy-Bot/redis-cluster-example/tree/clustering-development](https://github.com/Pogy-Bot/redis-cluster-example/tree/clustering-development)
 
-
 ## Notes
+
 - If you wanna build the plugins, make sure you have the language rust installed
 - You should be using systemd to manage your services or it will not work
 
 ## Summary of Steps
 
 _Step 1 and 2 are incase plugins cannot somehow work in the plugins folder in this repo._
-1- Download RedisJSON plugin - optional
-2- Download Redis Search plugin - optional
-3- Initializing
-4- Start services
-5- Run the redis command to link the clusters
+
+- Download RedisJSON plugin - optional
+- Download Redis Search plugin - optional
+- Initializing
+- Run the redis command to link the clusters
 
 ### 1- Download RedisJSON plugin - optional
 
@@ -56,6 +56,7 @@ find . -name "redisearch.so"
 and use the path that is returned.
 
 ### 3- Initializing
+
 Install `redis-server` and disable the service
 
 ```bash
@@ -64,61 +65,115 @@ sudo apt-get install redis-server # install redis
 sudo systemctl disable redis-server.service # disable the service
 ```
 
+Create and edit the /etc/rc.local file by running the following command:
+
+```
+sudo nano /etc/rc.local
+```
+
+and add to its content, press CTRL + X then Y to save and exit
+
+```
+ #!/bin/sh -e
+ #
+ # rc.local
+ #
+ # This script is executed at the end of each multiuser runlevel.
+ # Make sure that the script will "exit 0" on success or any other
+ # value on error.
+ #
+ # In order to enable or disable this script just change the execution
+ # bits.
+ #
+ # By default this script does nothing.
+ echo never > /sys/kernel/mm/transparent_hugepage/enabled
+ sysctl -w net.core.somaxconn=65535
+
+ exit 0
+```
+
+Give executable permissions to the `/etc/rc.local` file by running the following command:
+
+```bash
+sudo chmod +x /etc/rc.local
+```
+
+Edit the `/etc/sysctl.conf` by running the following command:
+
+```bash
+sudo nano /etc/sysctl.conf
+```
+
+Add the following line at the end of the file:
+
+```bash
+vm.overcommit_memory=1
+```
+
+clone the current repo and CD to it
+
+```bash
+git clone https://github.com/Pogy-Bot/redis-cluster-example
+cd redis-cluster-example
+```
+
+Customize anything you want then copy the files to `/etc/redis/` and `/var/lib/redis/`
+
+```bash
+sudo cp -r * /etc/redis/
+sudo cp -r * /var/lib/redis/
+```
+
 Create a redis user and a redis group for the Redis Server services and give them the correct permissions by running the following commands:
 
 ```bash
+sudo chown redis:redis -R /var/lib/redis
+sudo chmod 770 -R /var/lib/redis
 sudo chown redis:redis -R /etc/redis
 ```
 
-Go through each folder, and customize the `redis.conf` and service file to your needs.
-
-After you're done copy all the files to `/etc/redis/`
-```bash
-# if you're in the root of the repo
-sudo cp -r * /etc/redis/
-
-# if you're in another folder
-sudo cp -r /path/to/redis-cluster-example/* /etc/redis/
-```
-
-and give execution permissions
+Now, we will have create the `systemd` services.
+Let's start by giving `create.sh` execution permissions
 
 ```bash
 chmod +x create.sh
-chmod +x start.sh
-chmod +x status.sh
-chmod +x stop.sh
-chmod +x /etc/redis
 ```
 
-
-### 4- Do the magic
-
-To Create the services
+and run it
 
 ```bash
-sh ./create.sh
+sudo sh ./create.sh
 ```
 
-To start the services (on boot too)
+Now let's enable all the services
 
 ```bash
-sh ./start.sh
+chmod +x enable.sh # give execution permissions
+sudo sh ./enable.sh # enable the services
 ```
 
-To check the status of the services
+now start all the services
 
 ```bash
-sh ./status.sh
+chmod +x start.sh # give execution permissions
+sudo sh ./start.sh # start the services
 ```
 
-To stop the services (stops, and disables on boot)
+to check the status of any services
 
 ```bash
-sh ./stop.sh
+systemctl status redis_node_<port>
+
+#or to see all
+systemctl list-units --type=service
 ```
 
-### 5- Run the redis command to link the clusters
+to get logs:
+```
+sudo tail -n 100 /var/log/redis/redis_node_<port>.log
+```
+
+### 4- Run the redis command to link the clusters
 
 The command is used to create a Redis cluster.
 
@@ -155,6 +210,49 @@ then
 
 ```
 CLUSTER NODES
+```
+
+If you want to purge the main redis server:
+
+```bash
+sudo apt-get --purge remove redis-server
+sudo rm -rf /etc/redis/dump.rdb
+```
+
+To reinstall
+
+```bash
+sudo apt-get update
+sudo apt-get install redis-server
+```
+### Commands
+```bash
+# start
+sudo systemctl start redis_node_<port>.service
+
+# stop
+sudo systemctl stop redis_node_<port>.service
+
+# restart
+sudo systemctl restart redis_node_<port>.service
+
+# enable
+sudo systemctl enable redis_node_<port>.service
+
+# disable
+sudo systemctl disable redis_node_<port>.service
+
+# status
+systemctl status redis_node_<port>.service
+```
+
+### Mass Commands
+```bash
+sudo sh create.sh # create all services
+sudo sh start.sh # start all services
+sudo sh stop.sh # stop all services
+sudo sh restart.sh # restart all services
+sudo sh enable.sh # enable all services
 ```
 
 ### Errors

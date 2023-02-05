@@ -1,17 +1,14 @@
 [Unit]
-Description=Redis key-value database on 7010
+Description=Redis Node 7010
 After=network.target
-
 [Service]
 ExecStart=/usr/bin/redis-server /etc/redis/7010/redis.conf --supervised systemd
 ExecStop=/bin/redis-cli -h 127.0.0.1 -p 7010 shutdown
 Type=notify
 User=redis
 Group=redis
-RuntimeDirectory=redis
+RuntimeDirectory=/etc/redis/7010
 RuntimeDirectoryMode=0755
 LimitNOFILE=65535
-Restart=always
-
 [Install]
 WantedBy=multi-user.target
